@@ -1,0 +1,249 @@
+options:
+  parameters:
+    author: t0x1c-v4p0r
+    catch_exceptions: 'True'
+    category: Custom
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: Receives ax.25 packets , display the packets, and converts aprs packet
+      to be send via tcp/ip
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: APRS
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: APRS packets for Cesium Flight Tracker
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [10, 10]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: Attack
+  id: variable
+  parameters:
+    comment: ''
+    value: '0.8'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [376, 12.0]
+    rotation: 0
+    state: enabled
+- name: Decay
+  id: variable
+  parameters:
+    comment: ''
+    value: '0.1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [296, 12.0]
+    rotation: 0
+    state: enabled
+- name: Decim
+  id: variable
+  parameters:
+    comment: ''
+    value: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [464, 12.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '192000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [210, 12]
+    rotation: 0
+    state: enabled
+- name: audio_source_0
+  id: audio_source
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    device_name: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_outputs: '1'
+    ok_to_block: 'True'
+    samp_rate: '48000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [144, 228.0]
+    rotation: 0
+    state: true
+- name: ax25_aprs2inet_0
+  id: ax25_aprs2inet
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    debug_level: '2'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    sample_rate: int(samp_rate/4)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [888, 288.0]
+    rotation: 0
+    state: true
+- name: band_pass_filter_0_0
+  id: band_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: ''
+    decim: '1'
+    gain: '1'
+    high_cutoff_freq: '2450'
+    interp: '1'
+    low_cutoff_freq: '950'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate/Decim
+    type: fir_filter_fff
+    width: '100'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [384, 172.0]
+    rotation: 0
+    state: enabled
+- name: blocks_file_sink_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'True'
+    comment: ''
+    file: /dev/fd/1
+    type: byte
+    unbuffered: 'False'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1160, 316.0]
+    rotation: 0
+    state: true
+- name: blocks_sub_xx_0_0_0
+  id: blocks_sub_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [784, 440.0]
+    rotation: 0
+    state: enabled
+- name: detectMarkSpace_0_0
+  id: detectMarkSpace
+  parameters:
+    Frequency: '1200'
+    affinity: ''
+    alias: ''
+    attack: Attack
+    comment: ''
+    decay: Decay
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate/Decim
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 324.0]
+    rotation: 0
+    state: enabled
+- name: detectMarkSpace_1_0
+  id: detectMarkSpace
+  parameters:
+    Frequency: '2200'
+    affinity: ''
+    alias: ''
+    attack: Attack
+    comment: ''
+    decay: Decay
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate/Decim
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 492.0]
+    rotation: 0
+    state: enabled
+- name: network_tcp_sink_0
+  id: network_tcp_sink
+  parameters:
+    addr: 127.0.0.1
+    affinity: ''
+    alias: ''
+    comment: Change the address to your Cesium flight tracker server's.
+    mode: '1'
+    port: '3000'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1160, 436.0]
+    rotation: 0
+    state: true
+
+connections:
+- [audio_source_0, '0', band_pass_filter_0_0, '0']
+- [ax25_aprs2inet_0, '0', blocks_file_sink_0, '0']
+- [ax25_aprs2inet_0, '0', network_tcp_sink_0, '0']
+- [band_pass_filter_0_0, '0', detectMarkSpace_0_0, '0']
+- [band_pass_filter_0_0, '0', detectMarkSpace_1_0, '0']
+- [blocks_sub_xx_0_0_0, '0', ax25_aprs2inet_0, '0']
+- [detectMarkSpace_0_0, '0', blocks_sub_xx_0_0_0, '0']
+- [detectMarkSpace_1_0, '0', blocks_sub_xx_0_0_0, '1']
+
+metadata:
+  file_format: 1
